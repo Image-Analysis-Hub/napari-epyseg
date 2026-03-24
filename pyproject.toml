@@ -1,0 +1,71 @@
+[build-system]
+requires = ["setuptools>=68.2.2", "setuptools_scm>=7.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "napari-epyseg"
+version = "0.0.11"
+description = "Napari plugin to segment epithelia with EpySeg"
+readme = "README.md"
+requires-python = "<3.11"
+license = { file = "LICENSE" }
+authors = [
+    { name = "Gaëlle Letort" },
+]
+
+
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Framework :: napari",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: BSD License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Topic :: Scientific/Engineering :: Image Processing",
+]
+
+dependencies = [
+    "epyseg",
+    "tifffile <= 2024.12.12",  # Issue with lazyattr in newer versions
+    "numpy",
+]
+
+[project.optional-dependencies]
+testing = [
+    "tox",
+    "pytest",
+    "pytest-cov",
+    "pytest-qt",
+    "napari",
+    "pyqt5",
+]
+
+napari = [
+    "napari[all] <= 0.6.5",
+    "magicgui",
+    "pillow",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/Image-Analysis-Hub/napari-epyseg"
+"Documentation" = "https://github.com/Image-Analysis-Hub/napari-epyseg#README.md"
+"Source code" = "https://github.com/Image-Analysis-Hub/napari-epyseg"
+"Bug Tracker" = "https://github.com/Image-Analysis-Hub/napari-epyseg/issues"
+"User Support" = "https://github.com/Image-Analysis-Hub/napari-epyseg/issues"
+
+[project.entry-points."napari.manifest"]
+napari-epyseg = "napari_epyseg:napari.yaml"
+
+[tool.setuptools_scm]
+write_to = "src/napari_epyseg/_version.py"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"*" = ["*.yaml"]
