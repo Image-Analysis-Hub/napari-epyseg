@@ -8,13 +8,17 @@ from epyseg.deeplearning.deepl import EZDeepLearning
 import os
 import tempfile
 import tifffile as tif
+import logging
 
-def run_epyseg_onfolder( input_folder, paras, nt=None ):
+def run_epyseg_onfolder( input_folder, paras, nt=None, logger=None ):
     """ Run EpySeg on all the images in the temporary folder """
     try:
         deepTA = EZDeepLearning()
     except:
         print('EPySeg failed to load.')
+    
+    if logger is not None:
+        deepTA.logger = logger
 
     # Load a pre-trained model
     pretrained_model_name = 'Linknet-vgg16-sigmoid-v2'
@@ -30,12 +34,12 @@ def run_epyseg_onfolder( input_folder, paras, nt=None ):
         if nt is not None:
             nt.show_info( "Loading model "+paras["model_file"] )
         else:
-            print( "Loading model "+paras["model_file"] )
+            logger.info( "Loading model "+paras["model_file"] )
         if not os.path.exists( paras["model_file"] ):
             if nt is not None:
                 nt.show_warning( "Model "+paras["model_file"]+" not found" )
             else:
-                print( "Warning: Model "+paras["model_file"]+" not found" )
+                logger.warning( "Warning: Model "+paras["model_file"]+" not found" )
             return None
         deepTA.load_weights( paras["model_file"] )
 
@@ -77,7 +81,7 @@ def run_epyseg_onfolder( input_folder, paras, nt=None ):
     post_process_parameters['threshold'] = None  # None means autothrehsold # maybe add more options some day
 
     predict_output_folder = os.path.join(input_folder, 'predict')
-    print("Starting segmentation with EpySeg.....")
+    logger.info("Starting segmentation with EpySeg.....")
     deepTA.predict(predict_generator,
                 output_shape,
                 predict_output_folder=predict_output_folder,
@@ -89,14 +93,15 @@ def run_epyseg_onfolder( input_folder, paras, nt=None ):
     #deepTA = None
     del deepTA
 
-def run_epyseg( img, paras, progress_bar=None, verbose=True):
+def run_epyseg( img, paras, progress_bar=None, verbose=True, logger=None ):
     """ Run EpySeg on selected image or movie - Use a temporary directory """
     filename = "image"
     movie = []
+    _logger = logger or logging.getLogger(__name__)
 
     try:
         with tempfile.TemporaryDirectory() as tmpdir:
-            print("tmp dir "+str(tmpdir))
+            _logger.info("Using temporary directory for epyseg "+str(tmpdir))
 
             ### empty dirnectory if exists
             inputname = filename+"_"
@@ -111,12 +116,12 @@ def run_epyseg( img, paras, progress_bar=None, verbose=True):
                 predict_output_folder = os.path.join(tmpdir, 'predict')
                 os.makedirs(predict_output_folder, exist_ok=True)
             except:
-                print("Warning, issue in creating "+predict_output_folder+" folder")
+                _logger.warning("Warning, issue in creating "+predict_output_folder+" folder")
 
             if progress_bar is not None:
                 progress_bar.update(1)
             ## run Epyseg on tmp directory (contains current image)
-            run_epyseg_onfolder( tmpdir, paras )
+            run_epyseg_onfolder( tmpdir, paras, logger=_logger )
             if progress_bar is not None:
                 progress_bar.update(2)
 
