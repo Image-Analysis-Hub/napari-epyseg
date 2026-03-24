@@ -4,6 +4,7 @@
 
 import numpy as np
 from PIL import Image as pilImage
+import epyseg.deeplearning.deepl as deepl
 from epyseg.deeplearning.deepl import EZDeepLearning
 import os
 import tempfile
@@ -14,7 +15,7 @@ def run_epyseg_onfolder( input_folder, paras, nt=None, logger=None ):
     """ Run EpySeg on all the images in the temporary folder """
     try:
         if logger is not None:
-            EZDeepLearning.logger = logger
+            deepl.logger = logger
         deepTA = EZDeepLearning()
     except:
         print('EPySeg failed to load.')
